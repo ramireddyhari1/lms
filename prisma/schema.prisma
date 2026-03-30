@@ -1,0 +1,198 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  password  String
+  role      String   @default("user")
+  fullName  String?
+  email     String?
+  phone     String?
+  status    String   @default("active")
+  bio       String?
+  location  String?
+  company   String?
+  title     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  courses        Course[]
+  assessments    Assessment[]
+  assignments    Assignment[]
+  projects       Project[]
+  programs       Program[]
+  logbookEntries LogbookEntry[]
+  certificates   Certificate[]
+  notifications  Notification[]
+  supportTickets SupportTicket[]
+}
+
+model Course {
+  id         String   @id @default(cuid())
+  title      String
+  category   String
+  level      String   @default("Beginner")
+  duration   String
+  lessons    Int      @default(0)
+  instructor String
+  progress   Int      @default(0)
+  status     String   @default("upcoming")
+  image      String?
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Assessment {
+  id        String   @id @default(cuid())
+  name      String
+  type      String   @default("FA")
+  score     String?
+  weight    String
+  duration  String   @default("30")
+  status    String   @default("Pending")
+  userId    String
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  questions Question[]
+}
+
+model Assignment {
+  id         String   @id @default(cuid())
+  title      String
+  type       String   @default("Individual")
+  course     String
+  dueDate    String
+  points     Int      @default(100)
+  progress   Int      @default(0)
+  status     String   @default("Pending")
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Project {
+  id           String   @id @default(cuid())
+  title        String
+  subtitle     String?
+  type         String   @default("Personal")
+  company      String?
+  year         String
+  status       String   @default("active")
+  progress     Int      @default(0)
+  role         String?
+  techStack    String?
+  previewImage String?
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Program {
+  id        String   @id @default(cuid())
+  title     String
+  type      String   @default("Industrial Training")
+  status    String   @default("active")
+  batch     String?
+  startDate String
+  endDate   String
+  duration  String
+  progress  Int      @default(0)
+  mentor    String?
+  skills    String?
+  employer  String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model LogbookEntry {
+  id         String   @id @default(cuid())
+  date       String
+  time       String
+  activity   String
+  hours      Int      @default(0)
+  supervisor String
+  tasks      Int      @default(0)
+  status     String   @default("Pending")
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Certificate {
+  id        String   @id @default(cuid())
+  title     String
+  category  String
+  catLabel  String?
+  date      String
+  issuer    String
+  icon      String?
+  credId    String?
+  duration  String?
+  score     String?
+  progress  Int      @default(0)
+  status    String   @default("progress")
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  title     String
+  message   String
+  type      String   @default("system")
+  unread    Boolean  @default(true)
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SupportTicket {
+  id          String   @id @default(cuid())
+  ticketId    String   @unique
+  subject     String
+  description String?
+  category    String?
+  status      String   @default("In Progress")
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model JobListing {
+  id       String @id @default(cuid())
+  company  String
+  role     String
+  location String
+  salary   String
+  status   String @default("Not Applied")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Question {
+  id           String     @id @default(cuid())
+  text         String
+  options      String     
+  correctIndex Int
+  assessmentId String
+  assessment   Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+}
